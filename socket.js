@@ -4,6 +4,10 @@ let io = require('socket.io')(http);
 
 io.on('connection', (socket) => {
     console.log('Nueva conexión');
+    
+    // socket.on('coso', () => {
+    //     socket.broadcast.emit('NewPlatform');
+    // });
 
     socket.on('JugMovimiento', () => {
         socket.broadcast.emit('movimiento');
