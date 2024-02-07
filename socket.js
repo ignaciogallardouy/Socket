@@ -5,13 +5,13 @@ let io = require('socket.io')(http);
 io.on('connection', (socket) => {
     console.log('Nueva conexión');
 
-    socket.on('saltar', () =>{
-        socket.broadcast.emit('jugador-saltando');
+    socket.on('JugMovimiento', () => {
+        socket.broadcast.emit('movimiento');
     });
 });
 
 var port = 2525;
 
-http.listen(port, function() {
+http.listen(port, function () {
     console.log('listening in http://localhost:' + port);
 });
