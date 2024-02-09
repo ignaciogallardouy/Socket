@@ -1,34 +1,47 @@
 const express = require('express');
-const app = express();
 const http = require('http');
+const socketIo = require('socket.io');
 const path = require('path');
+
+const app = express();
 const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
+const io = socketIo(server);
 
 app.use(express.static(path.join(__dirname, 'client')));
 
-app.get('/healthcheck', (req, res) => {
-    res.send('<h1>RPS App running...</h1>');
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
 });
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/client/index.html');
-});
+const players = {};
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+  console.log('Un usuario se ha conectado');
+  players[socket.id] = {
+    x: 100,
+    y:50,
+    img: (__dirname, 'client', 'images/platform.png')
+  }
+  console.log(players);
 
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
+  io.emit('updatePlayers', players);
 
-    socket.on('JugMovimiento', () => {
-        socket.emit("movimiento");
-    });
+  socket.on('disconnect', () => {
+    console.log('Usuario desconectado');
+  });
+
+  socket.on("JugMovimiento", (socket) => {
+    io.emit('movimiento', socket);
+  });
+
+  // socket.on("AddNewBall", (newuser) => {
+  //   io.emit('newBall',newuser);
+  // });
+
+  // socket.on('enviar mensaje', (msg) => {
+  //   io.emit('recibir mensaje', msg);
+  // });
 });
 
-server.listen(3000, () => {
-    console.log('listening on *:3000');
-});
-
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`))
